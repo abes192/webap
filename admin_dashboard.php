@@ -1,10 +1,36 @@
 <?php
-// Check if the user is logged in (you need to implement a proper authentication mechanism)
 session_start();
 
 if (!isset($_SESSION['username'])) {
     header("Location: login.php");
     exit();
+}
+
+try {
+    // PDO Connection
+    $pdo = new PDO("sqlsrv:server = tcp:cloud3webdatabase.database.windows.net,1433; Database = team_messages", "abes", "Alan12345@");
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // SQL Server Extension Connection
+    $connectionInfo = array(
+        "UID" => "abes",
+        "pwd" => "Alan12345@",
+        "Database" => "team_messages",
+        "LoginTimeout" => 30,
+        "Encrypt" => 1,
+        "TrustServerCertificate" => 0
+    );
+    
+    $serverName = "tcp:cloud3webdatabase.database.windows.net,1433";
+    
+    // SQL Server Extension Connection
+    $sqlServerConn = sqlsrv_connect($serverName, $connectionInfo);
+    
+    if (!$sqlServerConn) {
+        die(print("Error connecting to SQL Server."));
+    }
+} catch (PDOException $e) {
+    die(print("Error connecting to SQL Server. " . $e->getMessage()));
 }
 ?>
 
@@ -23,27 +49,17 @@ if (!isset($_SESSION['username'])) {
         <h3>Messages</h3>
 
         <?php
-        // Display messages from the database (replace placeholders with actual values)
-        // Ganti dengan informasi koneksi database yang sesuai
-        $conn = pg_connect("host=klompok3cloud-server.postgres.database.azure.com port=5432 dbname=klompok3cloud-database user=zbnbkxzkuj password=7D5N6PQ1VJWZW8L1$");
+        // Display messages from the database
+        $query = "SELECT * FROM messages";
+        $stmt = $pdo->query($query);
 
-
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
-
-        $result = $conn->query("SELECT * FROM messages");
-
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
+        if ($stmt->rowCount() > 0) {
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 echo "<p><strong>Recipient:</strong> " . $row['recipient'] . " | <strong>Message:</strong> " . $row['message'] . "</p>";
             }
         } else {
             echo "<p>No messages found.</p>";
         }
-
-        // Close the database connection
-        $conn->close();
         ?>
 
         <a href="logout.php" class="btn btn-danger">Logout</a>
