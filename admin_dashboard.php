@@ -25,7 +25,7 @@ if (!isset($_SESSION['username'])) {
         <?php
         // Display messages from the database (replace placeholders with actual values)
         // Ganti dengan informasi koneksi database yang sesuai
-        $conn = new mysqli("localhost", "root", "", "team_messages");
+        $conn = pg_connect("host=klompok3cloud-server.postgres.database.azure.com port=5432 dbname=klompok3cloud-database user=zbnbkxzkuj password=7D5N6PQ1VJWZW8L1$");
 
 
         if ($conn->connect_error) {
